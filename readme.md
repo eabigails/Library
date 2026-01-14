@@ -59,6 +59,207 @@ application/
    http://localhost/LIBRARY/
    ```
 ---
+---
+
+## 🗂️ Perancangan Basis Data
+
+### 📌 CDM (Conceptual Data Model)
+![CDM](screenshots/cdm.png)
+CDM digunakan untuk menggambarkan hubungan konseptual antar entitas utama dalam sistem informasi perpustakaan **Libook**, tanpa detail teknis implementasi database.
+
+Entitas utama:
+- Karyawan
+- Anggota
+- User_Login
+- Kategori
+- Koleksi
+- Peminjaman
+- Detail_Peminjaman
+- Wishlist
+
+---
+
+### 📌 PDM (Physical Data Model)
+![PDM](screenshots/pdm.png)
+PDM menjelaskan struktur tabel database secara fisik, termasuk **primary key**, **atribut**, dan **relasi antar tabel**.
+
+---
+
+### 🧑‍💼 KARYAWAN
+
+Menyimpan data petugas & admin perpustakaan.
+
+**Primary Key**  
+- `id_karyawan`
+
+**Atribut**
+- `id_karyawan`
+- `nama_karyawan`
+- `username`
+- `password`
+- `role` (Admin / Petugas)
+- `created_at`
+
+**Relasi**
+- 1 karyawan melayani banyak peminjaman
+
+---
+
+### 👤 ANGGOTA
+
+Menyimpan data anggota perpustakaan.
+
+**Primary Key**  
+- `id_anggota`
+
+**Atribut**
+- `id_anggota`
+- `nama`
+- `alamat`
+- `no_telp`
+- `email`
+- `tgl_bergabung`
+
+**Relasi**
+- 1 anggota dapat melakukan banyak peminjaman
+- 1 anggota dapat memiliki banyak wishlist
+
+---
+
+### 🔐 USER_LOGIN
+
+Digunakan untuk autentikasi/login sistem (**single login table**).
+
+**Primary Key**  
+- `id_user`
+
+**Atribut**
+- `id_user`
+- `username`
+- `password`
+- `role` (Admin / Petugas / Anggota)
+- `ref_id` (mengacu ke `id_karyawan` atau `id_anggota`)
+- `created_at`
+
+**Catatan Penting**
+- Tidak menggunakan foreign key langsung
+- `ref_id` bersifat **polymorphic**
+  - Jika `role = Admin / Petugas` → `ref_id = id_karyawan`
+  - Jika `role = Anggota` → `ref_id = id_anggota`
+
+---
+
+### 🗃️ KATEGORI
+
+Master kategori buku.
+
+**Primary Key**
+- `id_kategori`
+
+**Atribut**
+- `id_kategori`
+- `nama_kategori`
+
+**Relasi**
+- 1 kategori memiliki banyak koleksi
+
+---
+
+### 📚 KOLEKSI
+
+Menyimpan data buku/koleksi perpustakaan.
+
+**Primary Key**
+- `id_koleksi`
+
+**Atribut**
+- `id_koleksi`
+- `judul`
+- `penulis`
+- `penerbit`
+- `tahun_terbit`
+- `id_kategori`
+- `gambar`
+- `is_deleted`
+
+**Relasi**
+- Banyak koleksi → 1 kategori
+- 1 koleksi dapat dipinjam berkali-kali
+- 1 koleksi dapat masuk wishlist banyak anggota
+
+---
+
+### 📝 PEMINJAMAN
+
+Menyimpan transaksi peminjaman buku.
+
+**Primary Key**
+- `id_peminjaman`
+
+**Atribut**
+- `id_peminjaman`
+- `id_anggota`
+- `id_karyawan`
+- `tgl_pinjam`
+- `tgl_kembali`
+- `status`
+
+**Relasi**
+- Banyak peminjaman → 1 anggota
+- Banyak peminjaman → 1 karyawan
+- 1 peminjaman memiliki banyak detail peminjaman
+
+---
+
+### 🔗 DETAIL_PEMINJAMAN
+
+Tabel penghubung (*junction table*) antara **Peminjaman** dan **Koleksi**.
+
+**Primary Key**
+- `id_detail`
+
+**Atribut**
+- `id_detail`
+- `id_peminjaman`
+- `id_koleksi`
+
+**Fungsi**
+- Mendukung peminjaman banyak buku dalam satu transaksi
+- Relasi **Many-to-Many** antara PEMINJAMAN dan KOLEKSI
+
+---
+
+### ❤️ WISHLIST
+
+Menyimpan buku favorit anggota.
+
+**Primary Key**
+- `id_wishlist`
+
+**Atribut**
+- `id_wishlist`
+- `id_anggota`
+- `id_koleksi`
+- `created_at`
+
+**Relasi**
+- 1 anggota ↔ banyak koleksi
+- 1 koleksi ↔ banyak anggota  
+  (*Many-to-Many*)
+
+---
+
+### 🔄 Relasi Antar Entitas
+
+- ANGGOTA (1) — (N) PEMINJAMAN
+- KARYAWAN (1) — (N) PEMINJAMAN
+- PEMINJAMAN (1) — (N) DETAIL_PEMINJAMAN
+- KOLEKSI (1) — (N) DETAIL_PEMINJAMAN
+- KATEGORI (1) — (N) KOLEKSI
+- ANGGOTA (M) — (N) KOLEKSI melalui WISHLIST
+- USER_LOGIN → ANGGOTA / KARYAWAN (melalui `ref_id`)
+
+---
 
 ## 🧪 Testing
 
