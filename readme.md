@@ -64,7 +64,9 @@ application/
 ## 🗂️ Perancangan Basis Data
 
 ### 📌 CDM (Conceptual Data Model)
+
 ![CDM](screenshots/cdm.png)
+
 CDM digunakan untuk menggambarkan hubungan konseptual antar entitas utama dalam sistem informasi perpustakaan **Libook**, tanpa detail teknis implementasi database.
 
 Entitas utama:
@@ -80,7 +82,9 @@ Entitas utama:
 ---
 
 ### 📌 PDM (Physical Data Model)
+
 ![PDM](screenshots/pdm.png)
+
 PDM menjelaskan struktur tabel database secara fisik, termasuk **primary key**, **atribut**, dan **relasi antar tabel**.
 
 ---
